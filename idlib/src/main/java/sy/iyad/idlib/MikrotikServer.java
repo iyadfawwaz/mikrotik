@@ -15,6 +15,7 @@ public class MikrotikServer {
     public String helloWorld(){
       return "hello World";
     }
+    public static int port=8728;
     public static List<Map<String, String>> mapList;
     public static Exception exception;
     public OnConnectListener onConnectListener;
