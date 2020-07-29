@@ -12,7 +12,7 @@ import sy.iyad.idlib.Ready.PreReady.OnExecuteListener;
 
 public class MikrotikServer {
     public static Api api;
-    public String helloWorld(){
+    public static String helloWorld(){
       return "hello World";
     }
     public static List<Map<String, String>> mapList;
