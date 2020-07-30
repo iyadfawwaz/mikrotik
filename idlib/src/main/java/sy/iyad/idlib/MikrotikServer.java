@@ -11,11 +11,15 @@ import sy.iyad.idlib.Ready.PreReady.OnConnectListener;
 import sy.iyad.idlib.Ready.PreReady.OnExecuteListener;
 
 public class MikrotikServer {
-    public static Api api;
-    public static List<Map<String, String>> mapList;
-    public static Exception exception;
-    public OnConnectListener onConnectListener;
-    public OnExecuteListener onExecuteListener;
+    private static Api api;
+    private String helloWorld(){
+      return "hello World";
+    }
+    public static int defaultPort=0;
+    private static List<Map<String, String>> mapList;
+    private static Exception exception;
+    private OnConnectListener onConnectListener;
+    private OnExecuteListener onExecuteListener;
     public void connect(String ip,String username,String password){
         String[] strings = new String[]{ip,username,password};
         try {
