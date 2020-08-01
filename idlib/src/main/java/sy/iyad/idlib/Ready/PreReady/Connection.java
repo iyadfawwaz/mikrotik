@@ -1,7 +1,7 @@
 package sy.iyad.idlib.Ready.PreReady;
 
 import android.os.AsyncTask;
-
+import javax.net.SocketFactory;
 import sy.iyad.idlib.Ready.Api;
 import sy.iyad.idlib.Ready.MikrotikApiException;
 
