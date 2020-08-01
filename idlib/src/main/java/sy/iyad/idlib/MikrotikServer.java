@@ -7,6 +7,7 @@ import sy.iyad.idlib.Ready.Api;
 import sy.iyad.idlib.Ready.PreReady.Executor;
 import sy.iyad.idlib.Ready.PreReady.Connector;
 import sy.iyad.idlib.Ready.PreReady.OnConnectListener;
+import sy.iyad.idlib.Roots.ApiCommandException;
 import sy.iyad.idlib.Ready.PreReady.OnExecuteListener;
 @SuppressWarnings("unused")
 public class MikrotikServer {
@@ -33,7 +34,15 @@ public class MikrotikServer {
       connect(ip,admin,password,8728);
     }
     public void execute(String cmd){
+      if(api!=null){
        execute(api,cmd);
+      }else{
+        try{
+        throw new Exception("لا يوجد اتصال مسبق يرجى طلب connect");
+      }catch(Exception ex){
+        internalException =ex;
+      }
+    }
     }
     public void execute(Api readyApi,String cmd){
         try {
