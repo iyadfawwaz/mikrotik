@@ -20,7 +20,9 @@ public class MikrotikServer {
     private static Exception exception;
     private OnConnectListener onConnectListener;
     private OnExecuteListener onExecuteListener;
-    public void connect(String ip,String username,String password){
+    public void connect(String ip,String username,String password,int PORT,int TIMEOUT){
+      Connection.PORTcUstom=PORT;
+      Connection.TIMEOUTcUstom=TIMEOUT;
         String[] strings = new String[]{ip,username,password};
         try {
             api = new Connection().execute(strings).get();
@@ -29,6 +31,9 @@ public class MikrotikServer {
         } catch (InterruptedException e) {
            exception = e;
         }
+    }
+    public void connect(String ipx,String adminx,String passwordx){
+      connect(ipx,adminx,passwordx,8728,3000);
     }
     public void execute(String cmd){
         try {
