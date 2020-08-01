@@ -8,9 +8,10 @@ import java.util.Map;
 import sy.iyad.idlib.Ready.Api;
 import sy.iyad.idlib.Ready.MikrotikApiException;
 
-public class Commander extends AsyncTask<Api,Integer, List<Map<String,String>>> {
+public class Executor extends AsyncTask<Api,Integer, List<Map<String,String>>> {
     public String cmd;
-    public Commander(String cmd){
+    public static Exception externalExceptionFromExecutor;
+    public Executor(String cmd){
         this.cmd = cmd;
     }
     @Override
@@ -20,7 +21,7 @@ public class Commander extends AsyncTask<Api,Integer, List<Map<String,String>>> 
             mapList = apis[0].execute(cmd);
             return mapList;
         } catch (MikrotikApiException e) {
-
+            externalExceptionFromExecutor = e;
         }
         return null;
     }
