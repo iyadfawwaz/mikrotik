@@ -6,8 +6,8 @@ import sy.iyad.idlib.Ready.Api;
 import sy.iyad.idlib.Ready.MikrotikApiException;
 
 public class Connection extends AsyncTask<String,Integer, Api> {
-  public static PORTcUstom=8728;
-  public static TIMEOUTcUstom=1000;
+  public static int PORTcUstom=8728;
+  public static int TIMEOUTcUstom=1000;
     @Override
     protected Api doInBackground(String... strings) {
         Api api;
