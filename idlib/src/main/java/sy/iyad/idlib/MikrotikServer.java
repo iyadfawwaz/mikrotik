@@ -7,6 +7,7 @@ import sy.iyad.idlib.Ready.Api;
 import sy.iyad.idlib.Ready.PreReady.Executor;
 import sy.iyad.idlib.Ready.PreReady.Connector;
 import sy.iyad.idlib.Ready.PreReady.OnConnectListener;
+import sy.iyad.idlib.Roots.ApiCommandException;
 import sy.iyad.idlib.Ready.PreReady.OnExecuteListener;
 @SuppressWarnings("unused")
 public class MikrotikServer {
@@ -41,6 +42,7 @@ public class MikrotikServer {
       }catch(ApiCommandException ex){
         internalException =ex;
       }
+    }
     }
     public void execute(Api readyApi,String cmd){
         try {
