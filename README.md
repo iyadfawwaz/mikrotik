@@ -44,10 +44,8 @@ that is full example for using syria mikrotik lib{
             }
         });
     }
-    
-    
+    }
     use that for latest version ;
-    
-    dependencies {
+
 	        implementation 'com.github.iyadseizer:mikrotik:1.8.13'
-	}
+
