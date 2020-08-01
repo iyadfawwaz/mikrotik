@@ -32,9 +32,9 @@ public class MikrotikServer {
            exception = e;
         }
     }
-   // public void connect(String ipx,String adminx,String passwordx){
-     // connect(ipx,adminx,passwordx,8728,3000);
-  //  }
+    public void connect(String ipx,String adminx,String passwordx){
+      connect(ipx,adminx,passwordx,8728,3000);
+    }
     public void execute(String cmd){
         try {
             mapList = new Commander(cmd).execute(api).get();
