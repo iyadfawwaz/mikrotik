@@ -33,7 +33,11 @@ public class MikrotikServer {
       connect(ip,admin,password,8728);
     }
     public void execute(String cmd){
+      if(api!=null){
        execute(api,cmd);
+      }else{
+        throw new internalException("لا يوجد اتصال مسبق يرجى طلب connect");
+      }
     }
     public void execute(Api readyApi,String cmd){
         try {
