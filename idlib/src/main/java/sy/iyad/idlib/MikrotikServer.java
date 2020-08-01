@@ -38,8 +38,8 @@ public class MikrotikServer {
        execute(api,cmd);
       }else{
         try{
-        throw new ApiCommandException("لا يوجد اتصال مسبق يرجى طلب connect");
-      }catch(ApiCommandException ex){
+        throw new Exception("لا يوجد اتصال مسبق يرجى طلب connect");
+      }catch(Exception ex){
         internalException =ex;
       }
     }
