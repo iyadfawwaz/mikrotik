@@ -2,7 +2,7 @@
  
  use that for latest version ;
 
-	        implementation 'com.github.iyadseizer:mikrotik:1.8.13'
+	        implementation 'com.github.iyadseizer:mikrotik:1.8.2'
 
 
 
