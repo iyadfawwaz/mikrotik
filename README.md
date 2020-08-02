@@ -1,3 +1,5 @@
+<a href='https://bintray.com/iyadseizer/mikrotik/sy.iyad/_latestVersion'><img src='https://api.bintray.com/packages/iyadseizer/mikrotik/sy.iyad/images/download.svg'></a>
+ 
  use that for latest version ;
 
 	        implementation 'com.github.iyadseizer:mikrotik:1.8.13'
