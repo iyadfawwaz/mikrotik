@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">serverConn</string>
+    <string name="ip_address">ip address</string>
+    <string name="username">username</string>
+    <string name="password">password</string>
+    <string name="connect">connect</string>
+    <string name="cmd">cmd</string>
+    <string name="send">send</string>
 </resources>
