@@ -1,21 +1,21 @@
 package sy.e.serverconn;
 
 import androidx.appcompat.app.AppCompatActivity;
-
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-
-import sy.iyad.idlib.Mikrotik;
+import java.util.List;
+import java.util.Map;
+import sy.iyad.idlib.MikrotikServer;
 import sy.iyad.idlib.Ready.Api;
-import sy.iyad.idlib.Ready.NewPreReady.ServerExecutor;
+import sy.iyad.idlib.Ready.PreReady.ConnectEventListener;
+import sy.iyad.idlib.Ready.PreReady.ExecuteEventListener;
 
 public class MainActivity extends AppCompatActivity {
-
-    public Mikrotik mikrotik;
+    private MikrotikServer mikrotikServer;
     Button connectbtn,sendbtn;
     TextView warn;
     EditText ipE,usernameE,passwordE,cmdE;
@@ -51,9 +51,9 @@ public class MainActivity extends AppCompatActivity {
     @SuppressLint("SetTextI18n")
     private void connectToServer(String ip, String username, String password) {
         // first :  you will implement new Mikrotik class
-        mikrotik = new Mikrotik();
+        mikrotikServer = MikrotikServer.connect(ip,username,password);
         // second : you will do connect to server with your informations about your RouterOs
-        if (mikrotik.connect(ip, username, password) != null) {
+        if (mikrotikServer != null) {
             warn.setText("connected");
             ipE.setVisibility(View.GONE);
             usernameE.setVisibility(View.GONE);
@@ -61,16 +61,33 @@ public class MainActivity extends AppCompatActivity {
             connectbtn.setVisibility(View.GONE);
             cmdE.setVisibility(View.VISIBLE);
             sendbtn.setVisibility(View.VISIBLE);
-        } else if (Mikrotik.getInternalException() != null){
-            warn.setText(Mikrotik.getInternalException().getMessage());
-            // now you are connected and your connection was saved to ServerConector's Api
+            mikrotikServer.addConnectEventListener(new ConnectEventListener() {
+                @Override
+                public void onConnectionSuccess(Api api) {
+                    System.out.println(api.toString());
+                }
+
+                @Override
+                public void onConnectionFailed(Exception exp) {
+                    System.out.println(exp.getMessage());
+                }
+            });
         }
     }
     private void executeSomethingCommand(String cmd){
         // execute your command ...
-       if (mikrotik.execute(cmd) != null)
-           warn.setText(Mikrotik.mapList.toString());
-       else if (Mikrotik.getInternalException() != null)
-           warn.setText(Mikrotik.getInternalException().getMessage());
+        MikrotikServer mikrotikServer = MikrotikServer.execute(cmd);
+       if (mikrotikServer != null)
+           mikrotikServer.addExecuteEventListener(new ExecuteEventListener() {
+               @Override
+               public void onExecutionSuccess(List<Map<String, String>> mapList) {
+                   warn.setText(mapList.toString());
+               }
+
+               @Override
+               public void onExecutionFailed(Exception exp) {
+                   warn.setText(exp.getMessage());
+               }
+           });
     }
 }

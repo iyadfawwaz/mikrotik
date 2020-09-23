@@ -4,20 +4,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import sy.iyad.idlib.Ready.Api;
+import sy.iyad.idlib.Ready.PreReady.ConnectEventListener;
+import sy.iyad.idlib.Ready.PreReady.ExecuteEventListener;
 import sy.iyad.idlib.Ready.PreReady.Executor;
 import sy.iyad.idlib.Ready.PreReady.Connector;
-import sy.iyad.idlib.Ready.PreReady.OnConnectListener;
-import sy.iyad.idlib.Roots.ApiCommandException;
-import sy.iyad.idlib.Ready.PreReady.OnExecuteListener;
-@SuppressWarnings("unused")
+
 public class MikrotikServer {
+
+    public static final int DEFAULT_PORT=8728;
+    public static final int DEFAULT_IMEOUT=3000;
     private static Api api;
     private static List<Map<String, String>> mapList;
     private static Exception internalException;
     private static Exception externalException;
-    private  OnConnectListener onConnectListener;
-    private OnExecuteListener onExecuteListener;
-    public void connect(String ip,String username,String password,int port,int timeout){
+   // private ConnectEventListener onConnectListener;
+    //private ExecuteEventListener onExecuteListener;
+    private void setupConnect(String ip,String username,String password,int port,int timeout){
         String[] strings = new String[]{ip,username,password};
         try {
             api = new Connector(port,timeout).execute(strings).get();
@@ -27,15 +29,30 @@ public class MikrotikServer {
            internalException = e;
         }
     }
-    public void connect(String ip,String admin,String password,int port){
-        connect(ip,admin,password,port,3000);
+    public static MikrotikServer connect(String ip,String username,String password,int port,int timeout){
+        MikrotikServer mikrotikServer = new MikrotikServer();
+        mikrotikServer.setupConnect(ip,username,password,port,timeout);
+        return mikrotikServer;
     }
-    public void connect(String ip,String admin,String password){
-      connect(ip,admin,password,8728);
+    public static MikrotikServer connect(String ip,String admin,String password,int port){
+        MikrotikServer mikrotikServer = new MikrotikServer();
+        mikrotikServer.setupConnect(ip,admin,password,port,DEFAULT_IMEOUT);
+        return mikrotikServer;
     }
-    public void execute(String cmd){
+    public static MikrotikServer connect(String ip,String admin,String password){
+        MikrotikServer mikrotikServer = new MikrotikServer();
+        mikrotikServer.setupConnect(ip,admin,password,DEFAULT_PORT,DEFAULT_IMEOUT);
+        return mikrotikServer;
+    }
+    public static MikrotikServer execute(Api api,String cmd){
+        MikrotikServer mikrotikServer = new MikrotikServer();
+        mikrotikServer.setupExecute(api,cmd);
+        return mikrotikServer;
+    }
+    public static MikrotikServer execute(String cmd){
+        MikrotikServer mikrotikServer = new MikrotikServer();
       if(api!=null){
-       execute(api,cmd);
+       mikrotikServer.setupExecute(api,cmd);
       }else{
         try{
         throw new Exception("لا يوجد اتصال مسبق يرجى طلب connect");
@@ -43,8 +60,9 @@ public class MikrotikServer {
         internalException =ex;
       }
     }
+      return mikrotikServer;
     }
-    public void execute(Api readyApi,String cmd){
+    private void setupExecute(Api readyApi,String cmd){
         try {
             mapList = new Executor(cmd).execute(readyApi).get();
         } catch (ExecutionException e) {
@@ -54,8 +72,8 @@ public class MikrotikServer {
         }
     }
 
-    public void setOnConnectListener(OnConnectListener listener) {
-        onConnectListener = listener;
+    public void addConnectEventListener(ConnectEventListener listener) {
+        //onConnectListener = listener;
         if (api != null)
             listener.onConnectionSuccess(api);
         else if (internalException!=null)
@@ -66,8 +84,8 @@ public class MikrotikServer {
             listener.onConnectionFailed(new Exception("unknown Error in Connector syriaLink"));
     }
 
-    public void setOnExecuteListener(OnExecuteListener listener) {
-        this.onExecuteListener = listener;
+    public void addExecuteEventListener(ExecuteEventListener listener) {
+       // this.onExecuteListener = listener;
         if (mapList != null)
             listener.onExecutionSuccess(mapList);
         else if (internalException!=null)

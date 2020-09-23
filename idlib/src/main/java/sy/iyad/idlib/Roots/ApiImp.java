@@ -64,9 +64,11 @@ import sy.iyad.idlib.Ready.ResultListener;
                 Map<String, String> res = list.get(0);
                 if (res.containsKey("ret")) {
                     String hash = res.get("ret");
-                    String chal = Util.hexStrToStr("00") + new String(password.toCharArray()) + Util.hexStrToStr(hash);
-                    chal = Util.hashMD5(chal);
-                    execute("/login name=" + username + " response=00" + chal);
+                    if (hash != null) {
+                        String chal = Util.hexStrToStr("00") + new String(password.toCharArray()) + Util.hexStrToStr(hash);
+                        chal = Util.hashMD5(chal);
+                        execute("/login name=" + username + " response=00" + chal);
+                    }
                 }
             }
         }
@@ -112,7 +114,7 @@ import sy.iyad.idlib.Ready.ResultListener;
         return l.getResults(timeout);
     }
 
-    private String execute(Command cmd, ResultListener lis) throws MikrotikApiException {
+    private void execute(Command cmd, ResultListener lis) throws MikrotikApiException {
         String tag = nextTag();
         cmd.setTag(tag);
         listeners.put(tag, lis);
@@ -123,7 +125,6 @@ import sy.iyad.idlib.Ready.ResultListener;
         } catch (IOException ex) {
             throw new ApiException(ex.getMessage(), ex);
         }
-        return tag;
     }
 
         private ApiImp() {
@@ -219,10 +220,11 @@ import sy.iyad.idlib.Ready.ResultListener;
                 try {
                     queue.put(data);
                 } catch (InterruptedException ex) {
+                    System.out.println(ex.getMessage());
                 }
             }
 
-            private final LinkedBlockingQueue queue = new LinkedBlockingQueue(40);
+            private final LinkedBlockingQueue<Object> queue = new LinkedBlockingQueue<Object>(40);
         }
 
         /**
@@ -271,7 +273,7 @@ import sy.iyad.idlib.Ready.ResultListener;
             private void nextLine() throws ApiException, ApiDataException {
                 if (lines.isEmpty()) {
                     String block = reader.take();
-                    String parts[] = block.split("\n");
+                    String[] parts = block.split("\n");
                     lines.addAll(Arrays.asList(parts));
                 }
                 line = lines.remove(0);
@@ -284,7 +286,7 @@ import sy.iyad.idlib.Ready.ResultListener;
             private String peekLine() throws ApiException, ApiDataException {
                 if (lines.isEmpty()) {
                     String block = reader.take();
-                    String parts[] = block.split("\n");
+                    String[] parts = block.split("\n");
                     lines.addAll(Arrays.asList(parts));
                 }
                 return lines.get(0);
@@ -316,7 +318,7 @@ import sy.iyad.idlib.Ready.ResultListener;
                 while (!line.startsWith(("!"))) {
                     l++;
                     if (line.startsWith(("="))) {
-                        String parts[] = line.split("=", 3);
+                        String[] parts = line.split("=", 3);
                         if (parts.length == 3) {
                             if (!parts[2].endsWith("\r")) {
                                 res.put(parts[1], unpackResult(parts[2]));
@@ -333,7 +335,7 @@ import sy.iyad.idlib.Ready.ResultListener;
                             throw new ApiDataException(String.format("Malformed line '%s'", line));
                         }
                     } else if (line.startsWith(".tag=")) {
-                        String parts[] = line.split("=", 2);
+                        String[] parts = line.split("=", 2);
                         if (parts.length == 2) {
                             res.setTag(parts[1]);
                         }
@@ -374,12 +376,12 @@ import sy.iyad.idlib.Ready.ResultListener;
 
                     while (!line.startsWith("!")) {
                         if (line.startsWith(".tag=")) {
-                            String parts[] = line.split("=", 2);
+                            String[] parts = line.split("=", 2);
                             if (parts.length == 2) {
                                 done.setTag(parts[1]);
                             }
                         } else if (line.startsWith(("=ret"))) {
-                            String parts[] = line.split("=", 3);
+                            String[] parts = line.split("=", 3);
                             if (parts.length == 3) {
                                 done.setHash(parts[2]);
                             } else {
@@ -403,7 +405,7 @@ import sy.iyad.idlib.Ready.ResultListener;
                 if (hasNextLine()) {
                     while (!line.startsWith("!")) {
                         if (line.startsWith(".tag=")) {
-                            String parts[] = line.split("=", 2);
+                            String[] parts = line.split("=", 2);
                             if (parts.length == 2) {
                                 err.setTag(parts[1]);
                             }
