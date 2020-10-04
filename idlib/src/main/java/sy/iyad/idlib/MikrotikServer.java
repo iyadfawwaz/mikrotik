@@ -90,7 +90,7 @@ public class MikrotikServer {
         if (api != null){
 			task.setOperationBool(true);
 			ConnectionResult res = new ConnectionResult();
-			res.setResult(api);
+			res.setApi(api);
             task.setResult(res);
         }else if (internalException!=null){
 			task.setOperationBool(false);
@@ -111,7 +111,7 @@ public class MikrotikServer {
 		LatestResult<ExecutionResult> lat= new LatestResult<>();
         if (mapList != null){
             ExecutionResult res = new ExecutionResult();
-			res.setResult(mapList);
+			res.setList(mapList);
 			lat.setResult(res);
 			lat.setOperationBool(true);
       }  else if (internalException!=null){
