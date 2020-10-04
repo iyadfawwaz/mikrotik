@@ -13,9 +13,12 @@ import sy.iyad.idlib.MikrotikServer;
 import sy.iyad.idlib.Ready.Api;
 import sy.iyad.idlib.Ready.PreReady.ConnectEventListener;
 import sy.iyad.idlib.Ready.PreReady.ExecuteEventListener;
+import sy.iyad.idlib.Ready.PreReady.*;
+/*@author iyad fawwaz
+*/
 
 public class MainActivity extends AppCompatActivity {
-    private MikrotikServer mikrotikServer;
+    
     Button connectbtn,sendbtn;
     TextView warn;
     EditText ipE,usernameE,passwordE,cmdE;
@@ -50,44 +53,40 @@ public class MainActivity extends AppCompatActivity {
     }
     @SuppressLint("SetTextI18n")
     private void connectToServer(String ip, String username, String password) {
-        // first :  you will implement new Mikrotik class
-        mikrotikServer = MikrotikServer.connect(ip,username,password);
-        // second : you will do connect to server with your informations about your RouterOs
-        if (mikrotikServer != null) {
-            warn.setText("connected");
-            ipE.setVisibility(View.GONE);
-            usernameE.setVisibility(View.GONE);
-            passwordE.setVisibility(View.GONE);
-            connectbtn.setVisibility(View.GONE);
-            cmdE.setVisibility(View.VISIBLE);
-            sendbtn.setVisibility(View.VISIBLE);
-            mikrotikServer.addConnectEventListener(new ConnectEventListener() {
-                @Override
-                public void onConnectionSuccess(Api api) {
-                    System.out.println(api.toString());
-                }
+		
+		MikrotikServer.connect().addConnectEventListener(new ConnectEventListener<ConnectionResult>(){
 
-                @Override
-                public void onConnectionFailed(Exception exp) {
-                    System.out.println(exp.getMessage());
-                }
-            });
-        }
+				@Override
+				public void onCompleted(LatestResult<ConnectionResult> task)
+				{
+					if(task.isSuccessful()){
+						
+						warn.setText("connected");
+						ipE.setVisibility(View.GONE);
+						usernameE.setVisibility(View.GONE);
+						passwordE.setVisibility(View.GONE);
+						connectbtn.setVisibility(View.GONE);
+						cmdE.setVisibility(View.VISIBLE);
+						sendbtn.setVisibility(View.VISIBLE);
+					}
+				}
+			});
     }
+	
     private void executeSomethingCommand(String cmd){
-        // execute your command ...
-        MikrotikServer mikrotikServer = MikrotikServer.execute(cmd);
-       if (mikrotikServer != null)
-           mikrotikServer.addExecuteEventListener(new ExecuteEventListener() {
-               @Override
-               public void onExecutionSuccess(List<Map<String, String>> mapList) {
-                   warn.setText(mapList.toString());
-               }
+        
+        MikrotikServer.execute(cmd).addExecuteEventListener(
+			new ExecuteEventListener<ExecutionResult>(){
 
-               @Override
-               public void onExecutionFailed(Exception exp) {
-                   warn.setText(exp.getMessage());
-               }
-           });
+				@Override
+				public void onCompleted(LatestResult<ExecutionResult> listRes)
+				{
+					if(listRes.isSuccessful()){
+						warn.setText(listRes.getResult().getList().toString());
+					}else{
+						warn.setText(listRes.getException().getMessage());
+					}
+				}
+			});        
     }
 }

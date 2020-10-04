@@ -8,47 +8,58 @@ import sy.iyad.idlib.Ready.PreReady.ConnectEventListener;
 import sy.iyad.idlib.Ready.PreReady.ExecuteEventListener;
 import sy.iyad.idlib.Ready.PreReady.Executor;
 import sy.iyad.idlib.Ready.PreReady.Connector;
+import sy.iyad.idlib.Roots.Result;
+import sy.iyad.idlib.Ready.PreReady.ConnectionResult;
+import sy.iyad.idlib.Ready.PreReady.*;
+import android.annotation.*;
 
 public class MikrotikServer {
 
     public static final int DEFAULT_PORT=8728;
-    public static final int DEFAULT_IMEOUT=3000;
+    public static final int DEFAULT_IMEOUT=6000;
     private static Api api;
     private static List<Map<String, String>> mapList;
     private static Exception internalException;
-    private static Exception externalException;
-   // private ConnectEventListener onConnectListener;
-    //private ExecuteEventListener onExecuteListener;
-    private void setupConnect(String ip,String username,String password,int port,int timeout){
+    
+    public static MikrotikServer connect(String ip,String username,String password,int port,int timeout){
+        MikrotikServer mikrotikServer = new MikrotikServer();
+        mikrotikServer.setupConnect(ip,username,password,port,timeout);
+        return mikrotikServer;
+    }
+	
+    public static MikrotikServer connect(String ip,String admin,String password,int port){
+        MikrotikServer mikrotikServer = new MikrotikServer();
+        mikrotikServer.setupConnect(ip,admin,password,port,DEFAULT_IMEOUT);
+        return mikrotikServer;
+    }
+	
+    public static MikrotikServer connect(String ip,String admin,String password){
+        MikrotikServer mikrotikServer = new MikrotikServer();
+        mikrotikServer.setupConnect(ip,admin,password,DEFAULT_PORT,DEFAULT_IMEOUT);
+        return mikrotikServer;
+    }
+	
+	public static MikrotikServer connect(){
+		return MikrotikServer.connect("2.2.2.2","admin","995x",DEFAULT_PORT,DEFAULT_IMEOUT);
+	}
+	
+	private void setupConnect(String ip,String username,String password,int port,int timeout){
         String[] strings = new String[]{ip,username,password};
         try {
             api = new Connector(port,timeout).execute(strings).get();
         } catch (ExecutionException e) {
             internalException = e;
         } catch (InterruptedException e) {
-           internalException = e;
+			internalException = e;
         }
     }
-    public static MikrotikServer connect(String ip,String username,String password,int port,int timeout){
-        MikrotikServer mikrotikServer = new MikrotikServer();
-        mikrotikServer.setupConnect(ip,username,password,port,timeout);
-        return mikrotikServer;
-    }
-    public static MikrotikServer connect(String ip,String admin,String password,int port){
-        MikrotikServer mikrotikServer = new MikrotikServer();
-        mikrotikServer.setupConnect(ip,admin,password,port,DEFAULT_IMEOUT);
-        return mikrotikServer;
-    }
-    public static MikrotikServer connect(String ip,String admin,String password){
-        MikrotikServer mikrotikServer = new MikrotikServer();
-        mikrotikServer.setupConnect(ip,admin,password,DEFAULT_PORT,DEFAULT_IMEOUT);
-        return mikrotikServer;
-    }
+	
     public static MikrotikServer execute(Api api,String cmd){
         MikrotikServer mikrotikServer = new MikrotikServer();
         mikrotikServer.setupExecute(api,cmd);
         return mikrotikServer;
     }
+	
     public static MikrotikServer execute(String cmd){
         MikrotikServer mikrotikServer = new MikrotikServer();
       if(api!=null){
@@ -62,6 +73,7 @@ public class MikrotikServer {
     }
       return mikrotikServer;
     }
+	
     private void setupExecute(Api readyApi,String cmd){
         try {
             mapList = new Executor(cmd).execute(readyApi).get();
@@ -72,29 +84,49 @@ public class MikrotikServer {
         }
     }
 
-    public void addConnectEventListener(ConnectEventListener listener) {
-        //onConnectListener = listener;
-        if (api != null)
-            listener.onConnectionSuccess(api);
-        else if (internalException!=null)
-            listener.onConnectionFailed(internalException);
-        else if (Connector.externalExceptionFromConnector!= null)
-            listener.onConnectionFailed(Connector.externalExceptionFromConnector);
-        else
-            listener.onConnectionFailed(new Exception("unknown Error in Connector syriaLink"));
+    public ConnectEventListener addConnectEventListener(@NonNull ConnectEventListener<ConnectionResult> listener) {
+
+		LatestResult<ConnectionResult> task = new LatestResult<>();
+        if (api != null){
+			task.setOperationBool(true);
+			ConnectionResult res = new ConnectionResult();
+			res.setResult(api);
+            task.setResult(res);
+        }else if (internalException!=null){
+			task.setOperationBool(false);
+            task.setException(internalException);
+       } else if (Connector.externalExceptionFromConnector!= null){
+            task.setOperationBool(false);
+			task.setException(Connector.externalExceptionFromConnector);
+       } else{
+		   task.setOperationBool(false);
+            task.setException(new Exception("unknown Error in Connector syriaLink"));
     }
+	listener.onCompleted(task);
+	return listener;
+	}
 
-    public void addExecuteEventListener(ExecuteEventListener listener) {
-       // this.onExecuteListener = listener;
-        if (mapList != null)
-            listener.onExecutionSuccess(mapList);
-        else if (internalException!=null)
-            listener.onExecutionFailed(internalException);
-        else if (Executor.externalExceptionFromExecutor!=null)
-            listener.onExecutionFailed(Executor.externalExceptionFromExecutor);
-        else
-            listener.onExecutionFailed(new Exception("unknown Error in Executor StriaLink"));
+    public ExecuteEventListener addExecuteEventListener(ExecuteEventListener<ExecutionResult> listener) {
 
-
+		LatestResult<ExecutionResult> lat= new LatestResult<>();
+        if (mapList != null){
+            ExecutionResult res = new ExecutionResult();
+			res.setResult(mapList);
+			lat.setResult(res);
+			lat.setOperationBool(true);
+      }  else if (internalException!=null){
+		  lat.setOperationBool(false);
+            lat.setException(internalException);
+        }else if (Executor.externalExceptionFromExecutor!=null){
+			lat.setOperationBool(false);
+			lat.setException(Executor.externalExceptionFromExecutor);
+            
+        }else{
+			lat.setOperationBool(false);
+            lat.setException(new Exception("unknown Error in Executor StriaLink"));
+			}
+			listener.onCompleted(lat);
+			return listener;
     }
+	
 }
